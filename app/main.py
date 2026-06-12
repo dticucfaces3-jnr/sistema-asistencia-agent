@@ -2,6 +2,29 @@ import asyncio
 import sys
 import os
 import webbrowser
+
+# Cargar variables de entorno desde .env si existe antes de importar módulos de la app
+def load_dotenv(dotenv_path=".env"):
+    if os.path.exists(dotenv_path):
+        try:
+            with open(dotenv_path, "r", encoding="utf-8") as f:
+                for line in f:
+                    line = line.strip()
+                    if not line or line.startswith("#"):
+                        continue
+                    parts = line.split("=", 1)
+                    if len(parts) == 2:
+                        key = parts[0].strip()
+                        val = parts[1].strip().strip('"').strip("'")
+                        os.environ[key] = val
+        except Exception as e:
+            print(f"⚠️ Error al leer archivo .env: {e}")
+
+# Cargar desde la carpeta de ejecución actual y desde la carpeta raíz del agente
+load_dotenv()
+agent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+load_dotenv(os.path.join(agent_dir, ".env"))
+
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
